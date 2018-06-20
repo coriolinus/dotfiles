@@ -7,6 +7,6 @@ For the purpose of standardizing my shells across a variety of machines, it turn
 ```sh
 cd ~
 git clone git@github.com:coriolinus/dotfiles.git
-ln ~/dotfiles/.profile .profile
-ln ~/dotfiles/.bash_profile .bash_profile
+ln -f ~/dotfiles/.profile .profile
+ln -f ~/dotfiles/.bash_profile .bash_profile
 ```
