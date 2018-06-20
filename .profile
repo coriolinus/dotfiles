@@ -1,5 +1,5 @@
 # Constants
-export EDITOR=code
+export EDITOR=nano
 
 # Colors
 INVERT=`tput smso`
