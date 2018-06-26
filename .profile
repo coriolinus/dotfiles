@@ -22,5 +22,5 @@ for script in ~/dotfiles/application/*.sh; do
 done
 
 # Add pre-exec date function
-[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+[[ -f ~/dotfiles/.bash-preexec.sh ]] && source ~/dotfiles/.bash-preexec.sh
 preexec() { date; }
