@@ -1,4 +1,4 @@
-if [ -d "$HOME/.cargo/bin" ] && ! [[ $PATH =~ (^|:)"$HOME"/.cargo/bin(:|$) ]]; then
-    export PATH="$HOME/.cargo/bin:$PATH"
+if [ -e "$HOME"/dotfiles/ensurepath.sh ]; then
+    source "$HOME"/dotfiles/ensurepath.sh
+    ensurepath "$HOME"/.cargo/bin
 fi
-
