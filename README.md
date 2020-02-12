@@ -9,4 +9,5 @@ cd ~
 git clone git@github.com:coriolinus/dotfiles.git
 ln -f ~/dotfiles/.profile .profile
 ln -f ~/dotfiles/.bash_profile .bash_profile
+ln -f ~/dotfiles/.bashrc .bashrc
 ```
