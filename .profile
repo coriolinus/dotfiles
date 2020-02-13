@@ -10,3 +10,9 @@ fi
 for script in ~/dotfiles/profile.d/*.sh; do
     source "$script"
 done
+
+# when running in WSL, we want to also execute .bashrc here; otherwise it doesn't
+# handle .bashrc appropriately
+if [ -f /proc/version ] && grep -q Microsoft /proc/version; then
+    source ~/dotfiles/.bashrc
+fi
