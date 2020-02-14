@@ -11,8 +11,8 @@ for script in ~/dotfiles/profile.d/*.sh; do
     source "$script"
 done
 
-# when running in WSL, we want to also execute .bashrc here; otherwise it doesn't
-# handle .bashrc appropriately
-if [ -f /proc/version ] && grep -q Microsoft /proc/version; then
+# when running in WSL or osx, we want to also execute .bashrc here; otherwise
+# it doesn't handle .bashrc appropriately
+if [ -f /proc/version ] && grep -q Microsoft /proc/version || [[ "$OSTYPE" =~ darwin ]]; then
     source ~/dotfiles/.bashrc
 fi
