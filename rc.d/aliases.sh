@@ -30,3 +30,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
+
+if which xdg-open >/dev/null 2>&1 && ! [ -x open ]; then
+    alias open='xdg-open'
+fi
