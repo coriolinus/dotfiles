@@ -1,5 +1,10 @@
 # .profile is for things like environment variables, like PATH etc
 
+# silence a bunch of OSX warnings about locale: we don't actually want
+# en_DE, and it's not supported anyway. It goes here instead of in
+# profile.d to ensure that it's set before the warnings are generated.
+export LC_ALL=en_US.UTF-8
+
 if [ -e "$HOME"/dotfiles/ensurepath.sh ]; then
     source "$HOME"/dotfiles/ensurepath.sh
     ensurepath "$HOME"/bin
