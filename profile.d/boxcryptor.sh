@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 # This takes a bit of setup, but if everything is in place, automatically
 # connects securely to Boxcryptor.
 #
@@ -7,7 +9,7 @@
 # Then, at the prompt, do _not_ enter the sudo password; enter the password
 # for the personal boxcryptor.
 
-if  [[ -d "$HOME"/Dropbox/BoxCryptor ]] && 
+if  [[ -d "$HOME"/Dropbox/BoxCryptor ]] &&
     [[ -d "$HOME"/Boxcryptor ]] &&
     command -v encfs >/dev/null &&
     command -v secret-tool >/dev/null; then

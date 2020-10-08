@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 # Go language
 if which go >/dev/null 2>&1; then
     export GOPATH=$HOME/go
