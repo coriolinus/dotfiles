@@ -22,7 +22,7 @@ done
 
 # when running in WSL or osx, we want to also execute .bashrc here; otherwise
 # it doesn't handle .bashrc appropriately
-if [ -f /proc/version ] && grep -q Microsoft /proc/version || [[ "$OSTYPE" =~ darwin ]]; then
+if [ -f /proc/version ] && grep -iq Microsoft /proc/version || [[ "$OSTYPE" =~ darwin ]]; then
     # shellcheck source=.bashrc
     source ~/dotfiles/.bashrc
 fi
