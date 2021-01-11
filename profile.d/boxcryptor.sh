@@ -11,6 +11,8 @@
 
 if  [[ -d "$HOME"/Dropbox/BoxCryptor ]] &&
     [[ -d "$HOME"/Boxcryptor ]] &&
+    # test that the dest dir is empty / unmounted
+    [ -z "$(ls -A "$HOME"/Boxcryptor)" ] &&
     command -v encfs >/dev/null &&
     command -v secret-tool >/dev/null; then
         secret-tool lookup boxcryptor personal |\
