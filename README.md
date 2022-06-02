@@ -33,3 +33,13 @@ On unixy systems, we can automatically connect to Boxcryptor.
     This will present a password prompt; enter the boxcryptor password, _not_ the system password.
 
 Boxcryptor will then automatically mount when the profile is sourced.
+
+### Clipboard access on WSL
+
+Ubuntu has a nice `clip` command which doesn't work by default on WSL.
+There's a shim to make it work in this repo:
+
+```sh
+mkdir -p ~/bin
+ln -f ~/dotfiles/bin/clip ~/bin/clip
+```
