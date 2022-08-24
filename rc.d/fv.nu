@@ -231,7 +231,7 @@ module fv {
                 services: [
                     {
                         name: profile
-                        namespace: flux-system
+                        namespace: sq-access
                         db: {
                             name: profile_service
                             user: postgres
@@ -240,7 +240,7 @@ module fv {
                     }
                     {
                         name: identification
-                        namespace: flux-system
+                        namespace: sq-access
                         db: {
                             name: identification
                             user: postgres
@@ -249,7 +249,7 @@ module fv {
                     }
                     {
                         name: documents
-                        namespace: flux-system
+                        namespace: sq-insights
                         db: {
                             name: document_service
                             user: postgres
@@ -258,7 +258,7 @@ module fv {
                     }
                     {
                         name: bastion
-                        namespace: flux-system
+                        namespace: sq-platform
                         label: "app.kubernetes.io/name=bastion-host"
                     }
                 ]
