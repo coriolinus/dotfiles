@@ -13,11 +13,11 @@ export def "context current" [] {
 export def "context list" [] {
     [
         {
-            name: staging-rw
+            name: finvia-staging-cluster
             cluster: (cluster get staging)
         }
         {
-            name: production-rw
+            name: finvia-production-cluster
             cluster: (cluster get production)
         }
     ]
