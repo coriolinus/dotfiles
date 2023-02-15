@@ -1,8 +1,8 @@
 #!/usr/bin/env nu
 
 # known working nu version:
-# 4bac90a3b2742b53021354ce6f7fcddd2e16b215
-# (0.74.1)
+# d5ce509e3afff0c7e04855c252bbacdcba381060
+# (0.75.1)
 
 export def "context current" [] {
     let context_name = (^kubectl config current-context | str trim)
@@ -35,7 +35,11 @@ export def "cluster list" [] {
     [
         {
             name: staging
-            aws_account_id: 225254349069
+            aws_account_id: "225254349069"
+            cognito: {
+                aws_profile: "mfa"
+                user_pool: "eu-central-1_2pm7wovFD"
+            }
             db: {
                 host: "terraform-20210615111248889200000002.c4mc45uolaov.eu-central-1.rds.amazonaws.com"
                 port: 5432
@@ -93,7 +97,11 @@ export def "cluster list" [] {
         }
         {
             name: production
-            aws_account_id: 936127192905
+            aws_account_id: "936127192905"
+            cognito: {
+                aws_profile: "FINVIA-CognitoProd-ReadOnly"
+                user_pool: "eu-central-1_jMPzWliAQ"
+            }
             db: {
                 host: "terraform-20210616125503990200000005.cu5sero3fbk1.eu-central-1.rds.amazonaws.com"
                 port: 5432
@@ -154,6 +162,7 @@ export def "cluster get" [cluster_name: string@"cluster names"] {
 
 export def "cluster login" [] {
     ^aws --profile (context current).name sso login
+    ^aws ecr get-login-password --profile FINVIA-Common-ECRReader | ^docker login --username AWS --password-stdin 533806089962.dkr.ecr.eu-central-1.amazonaws.com
 }
 
 export def "service list" [] {
@@ -177,19 +186,24 @@ export def "service get" [$service_name: string@"service names"] {
 
 export def "bastion pod" [] {
     let bastion = (service get bastion)
-
     ^kubectl get pod -n $bastion.namespace -l $bastion.label -o name
     | str trim
     | str replace "^pod/" ""
 }
 
 export def "bastion exec" [
+    --redirect-stdout
     command: string
     ...args: string
 ] {
+    let stdin = $in;
     let bastion = service get bastion
 
-    (run-external kubectl exec "-n" $bastion.namespace "-it" (bastion pod) "--" $command $args)
+    if ($redirect_stdout) {
+        ($stdin | run-external --redirect-stdout kubectl exec "-n" $bastion.namespace "-it" (bastion pod) "--" $command $args)
+    } else {
+        ($stdin | run-external kubectl exec "-n" $bastion.namespace "-it" (bastion pod) "--" $command $args)
+    }
 }
 
 export def "bastion pull" [
@@ -218,6 +232,31 @@ export def "bastion db" [
     service_name: string@"service names"
 ] {
     bastion exec "psql" "--pset=pager=off" "--pset=format=wrapped" "--expanded" (db connection-string $service_name)
+}
+
+export def "bastion db csv" [
+    service_name: string@"service names"
+    query: string
+] {
+    ($in | bastion exec
+            --redirect-stdout
+            "psql"
+            "--pset=pager=off"
+            "--csv"
+            "--field-separator=,"
+            "--command" $query
+            (db connection-string $service_name)
+    )
+}
+
+export def "bastion db query" [
+    service_name: string@"service names"
+    query: string
+] {
+    let stdin = $in
+    let stdin = (if $stdin != $nothing { $stdin | to csv } else { $stdin })
+
+    $stdin | bastion db csv $service_name $query | from csv --no-infer
 }
 
 export def "db current" [] {
@@ -270,6 +309,23 @@ export def "db connection-string" [
     let secret = db secret $service_name
 
     $"postgres://($db.user):($secret)@($db.host)/($db.name)"
+}
+
+export def "cognito users" [] {
+    let cognito = (cluster current | get cognito)
+    ^aws --output json cognito-idp list-users --user-pool-id $cognito.user_pool --profile $cognito.aws_profile --region eu-central-1 | from json | get Users
+}
+
+export def "cognito groups" [] {
+    let cognito = (cluster current | get cognito)
+    ^aws --output json cognito-idp list-groups --user-pool-id $cognito.user_pool --profile $cognito.aws_profile --region eu-central-1 | from json | get Groups
+}
+
+export def "cognito users-in-group" [
+    group: string
+] {
+    let cognito = (cluster current | get cognito)
+    ^aws --output json cognito-idp list-users-in-group --user-pool-id $cognito.user_pool --profile $cognito.aws_profile --region eu-central-1 --group $group | from json | get Users
 }
 
 export def "login" [] {
