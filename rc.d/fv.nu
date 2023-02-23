@@ -35,6 +35,7 @@ export def "cluster list" [] {
     [
         {
             name: staging
+            aws_profile: "FINVIA-Staging-PowerUser"
             aws_account_id: "225254349069"
             cognito: {
                 aws_profile: "mfa"
@@ -97,6 +98,7 @@ export def "cluster list" [] {
         }
         {
             name: production
+            aws_profile: "FINVIA-Production-PowerUser"
             aws_account_id: "936127192905"
             cognito: {
                 aws_profile: "FINVIA-CognitoProd-ReadOnly"
@@ -161,7 +163,7 @@ export def "cluster get" [cluster_name: string@"cluster names"] {
 }
 
 export def "cluster login" [] {
-    ^aws --profile (context current).name sso login
+    ^aws --profile (context current).cluster.aws_profile sso login
     ^aws ecr get-login-password --profile FINVIA-Common-ECRReader | ^docker login --username AWS --password-stdin 533806089962.dkr.ecr.eu-central-1.amazonaws.com
 }
 
