@@ -31,6 +31,18 @@ export def "context get" [cluster_name: string@"context names"] {
     context list | where name == $cluster_name | first
 }
 
+export def "context envs" [] {
+    context list | get cluster.name
+}
+
+export def "context get-env" [environment: string@"context envs"] {
+    context list | where cluster.name == $environment | first
+}
+
+export def "context set" [environment: string@"context envs"] {
+    ^kubectl config use-context (context get-env $environment | get name)
+}
+
 export def "cluster list" [] {
     [
         {
@@ -162,8 +174,17 @@ export def "cluster get" [cluster_name: string@"cluster names"] {
     cluster list | where name == $cluster_name | first
 }
 
-export def "cluster login" [] {
-    ^aws --profile (context current).cluster.aws_profile sso login
+export def "cluster login" [environment?: string@"context envs"] {
+    let profile = if ($environment == null) {
+        (context current).cluster.aws_profile
+    } else {
+        (cluster get $environment).aws_profile
+    }
+
+    ^aws --profile $profile sso login
+    if ($environment != null) {
+        context set $environment
+    }
     ^aws ecr get-login-password --profile FINVIA-Common-ECRReader | ^docker login --username AWS --password-stdin 533806089962.dkr.ecr.eu-central-1.amazonaws.com
 }
 
@@ -330,8 +351,8 @@ export def "cognito users-in-group" [
     ^aws --output json cognito-idp list-users-in-group --user-pool-id $cognito.user_pool --profile $cognito.aws_profile --region eu-central-1 --group $group | from json | get Users
 }
 
-export def "login" [] {
-    cluster login
+export def "login" [environment?: string@"context envs"] {
+    cluster login $environment
 }
 
 # ╭────────╮
@@ -343,8 +364,8 @@ def main [] {
 }
 
 # Log-in to AWS
-def "main login" [] {
-    login
+def "main login" [environment?: string@"context envs"] {
+    login $environment
 }
 
 # Get a psql session on the bastion host to the db of `service`
