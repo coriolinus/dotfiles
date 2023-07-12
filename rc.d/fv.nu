@@ -1,8 +1,7 @@
 #!/usr/bin/env nu
 
 # known working nu version:
-# d5ce509e3afff0c7e04855c252bbacdcba381060
-# (0.75.1)
+# (0.82.0)
 
 export def "context current" [] {
     let context_name = (^kubectl config current-context | str trim)
@@ -185,7 +184,11 @@ export def "cluster login" [environment?: string@"context envs"] {
     if ($environment != null) {
         context set $environment
     }
-    ^aws ecr get-login-password --profile FINVIA-Common-ECRReader | ^docker login --username AWS --password-stdin 533806089962.dkr.ecr.eu-central-1.amazonaws.com
+    ecr login
+}
+
+export def "ecr login" [] {
+    ^aws ecr get-login-password --profile FINVIA-ECR-ReadOnly | ^docker login --username AWS --password-stdin 533806089962.dkr.ecr.eu-central-1.amazonaws.com
 }
 
 export def "service list" [] {
@@ -197,7 +200,7 @@ export def "service names" [] {
 }
 
 export def "service get" [$service_name: string@"service names"] {
-    let cluster = cluster current
+    let cluster = (cluster current)
     let service = (service list | where name == $service_name | first)
     let service = ($service | default {} db)
     # Merging is reversed:
@@ -220,7 +223,7 @@ export def "bastion exec" [
     ...args: string
 ] {
     let stdin = $in;
-    let bastion = service get bastion
+    let bastion = (service get bastion)
 
     if ($redirect_stdout) {
         ($stdin | run-external --redirect-stdout kubectl exec "-n" $bastion.namespace "-it" (bastion pod) "--" $command $args)
@@ -292,13 +295,13 @@ export def "db current" [] {
 export def "db dump" [
     service_name: string@"service names"
 ] {
-    let cluster = cluster current
-    let service = service get $service_name
-    let bastion = service get bastion
+    let cluster = (cluster current)
+    let service = (service get $service_name)
+    let bastion = (service get bastion)
     let db = $service.db
-    let db_secret = (^kubectl get secret $db.secret_name -o "go-template={{ .data.dbPassword }}" -n flux-system | ^base64 --decode)
+    let db_secret = (db secret $service_name)
 
-    let bastion_host_pod = bastion pod
+    let bastion_host_pod = (bastion pod)
 
     # let dump_name = $"($service_name)-($cluster.name)-(random uuid).pgdump"
     let dump_name = $"($service_name)-($cluster.name)-(date now | date format '%Y-%m-%d-%H-%M-%S').pgdump"
@@ -319,19 +322,17 @@ export def "db dump" [
 export def "db secret" [
     service_name: string@"service names"
 ] {
-    let service = service get $service_name
+    let service = (service get $service_name)
 
-    (^kubectl get secret $service.db.secret_name -o "go-template={{ .data.dbPassword }}" -n flux-system | ^base64 --decode)
+    (db connection-string $service_name | url parse | get password)
 }
 
 export def "db connection-string" [
     service_name: string@"service names"
 ] {
-    let service = service get $service_name
-    let db = $service.db
-    let secret = db secret $service_name
+    let service = (service get $service_name)
 
-    $"postgres://($db.user):($secret)@($db.host)/($db.name)"
+    (^kubectl get secret $service.db.secret_name -o "go-template={{ .data.dbUrl }}" -n $service.namespace | ^base64 --decode)
 }
 
 export def "cognito users" [] {
