@@ -4,7 +4,7 @@
 # (0.82.0)
 
 export def "context current" [] {
-    let context_name = (^kubectl config current-context | str trim)
+    let context_name = (^kubectl config current-context | str trim | str replace '.*(finvia-\w+-cluster)' '$1')
 
     context get $context_name
 }
