@@ -125,8 +125,10 @@ export def "cluster list" [] {
                     namespace: sq-access
                     db: {
                         name: profile_service
-                        user: postgres
+                        user: sq_access__profile
                         secret_name: profile-service
+                        defines_db_url: true
+                        defines_db_password: false
                     }
                 }
                 {
@@ -134,8 +136,10 @@ export def "cluster list" [] {
                     namespace: sq-access
                     db: {
                         name: identification
-                        user: postgres
+                        user: sq_access__identification
                         secret_name: identification-service
+                        defines_db_url: false
+                        defines_db_password: true
                     }
                 }
                 {
@@ -143,8 +147,10 @@ export def "cluster list" [] {
                     namespace: sq-insights
                     db: {
                         name: document_service
-                        user: postgres
+                        user: sq_insights__documents
                         secret_name: document-service
+                        defines_db_url: true
+                        defines_db_password: false
                     }
                 }
                 {
@@ -324,7 +330,20 @@ export def "db secret" [
 ] {
     let service = (service get $service_name)
 
-    (db connection-string $service_name | url parse | get password)
+    if $service.db.defines_db_password {
+        (^kubectl get secret $service.db.secret_name -n $service.namespace -o 'jsonpath={.data.dbPassword}' | ^base64 --decode)
+    } else if $service.db.defines_db_url {
+        (db connection-string $service_name | url parse | get password)
+    } else {
+        let span = (metadata $service_name).span
+
+        error make {
+            msg: "service does not define a mechanism for retrieving the database secret",
+            start: $span.start,
+            end: $span.end,
+        }
+    }
+
 }
 
 export def "db connection-string" [
@@ -332,7 +351,24 @@ export def "db connection-string" [
 ] {
     let service = (service get $service_name)
 
-    (^kubectl get secret $service.db.secret_name -o "go-template={{ .data.dbUrl }}" -n $service.namespace | ^base64 --decode)
+    if $service.db.defines_db_url {
+        (^kubectl get secret $service.db.secret_name -n $service.namespace -o "go-template={{ .data.dbUrl }}" | ^base64 --decode)
+    } else if $service.db.defines_db_password {
+        let user = $service.db.user
+        let secret = (db secret $service_name)
+        let host = $service.db.host
+        let name = $service.db.name
+
+        $"postgres://($user):($secret)@($host)/($name)"
+    } else {
+        let span = (metadata $service_name).span
+
+        error make {
+            msg: "service does not define a mechanism for retrieving the database secret",
+            start: $span.start,
+            end: $span.end,
+        }
+    }
 }
 
 export def "cognito users" [] {
