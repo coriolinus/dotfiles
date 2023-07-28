@@ -62,8 +62,10 @@ export def "cluster list" [] {
                     namespace: sq-access
                     db: {
                         name: profile_service
-                        user: postgres
+                        user: sq_access__profile
                         secret_name: profile-service
+                        defines_db_url: true
+                        defines_db_password: false
                     }
                 }
                 {
@@ -71,8 +73,10 @@ export def "cluster list" [] {
                     namespace: sq-access
                     db: {
                         name: identification
-                        user: postgres
+                        user: sq_access__identification
                         secret_name: identification-service
+                        defines_db_url: false
+                        defines_db_password: true
                     }
                 }
                 {
@@ -80,8 +84,10 @@ export def "cluster list" [] {
                     namespace: sq-insights
                     db: {
                         name: document_service
-                        user: postgres
+                        user: sq_insights__documents
                         secret_name: document-service
+                        defines_db_url: true
+                        defines_db_password: false
                     }
                 }
                 {
