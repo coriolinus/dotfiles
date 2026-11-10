@@ -19,3 +19,10 @@ done
 # source the date setup script last so we don't get a bunch of spurious dates on startup
 # shellcheck source=date.sh
 source ~/dotfiles/date.sh
+
+# sdkman wants to be initialized last so its candidates take precedence on PATH
+if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+    export SDKMAN_DIR="$HOME/.sdkman"
+    # shellcheck source=/dev/null
+    source "$SDKMAN_DIR/bin/sdkman-init.sh"
+fi
