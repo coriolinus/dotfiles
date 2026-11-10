@@ -45,6 +45,19 @@ To profile startup:
 PS4='+${EPOCHREALTIME} ${BASH_SOURCE}:${LINENO} ' bash -xlic exit 2>&1 | less
 ```
 
+### WSL: Windows PATH
+
+Searching the Windows directories that WSL appends to PATH costs ~8ms per
+lookup of a command which isn't installed. Disable that in `/etc/wsl.conf`:
+
+```ini
+[interop]
+appendWindowsPath=false
+```
+
+then run `wsl --shutdown` from Windows. `profile.d/wsl.sh` adds back the
+Windows directories we actually use.
+
 ### Automatically Connect Boxcryptor
 
 On unixy systems, we can automatically connect to Boxcryptor. 
