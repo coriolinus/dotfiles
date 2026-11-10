@@ -1,40 +1,27 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
-envfile=~/.ssh/agent.env
-
-# only use this function if you're sure that "$envfile" exists
-function load_env_inner() {
-    # we don't need to follow this file for checks; it's generated
+# Start or reuse an ssh-agent and load the default keys. The agent's
+# environment is saved to ~/.ssh/agent.env so all shells share one agent.
+#
+# Only in a terminal: ssh-add may need to prompt for a passphrase, and
+# graphical sessions read ~/.profile without one.
+if [ -t 0 ] && [ -d ~/.ssh ]; then
+    ssh_agent_env=~/.ssh/agent.env
     # shellcheck disable=SC1090
-    source "$envfile" >| /dev/null
-}
+    [ -f "$ssh_agent_env" ] && . "$ssh_agent_env" >/dev/null
 
-function load_env() {
-    if [ -f "$envfile" ]; then
-        # we don't need to follow this file for checks; it's generated
+    # ssh-add -l exits 0 if the agent has keys, 1 if it has none, 2 if unreachable
+    ssh-add -l >/dev/null 2>&1
+    ssh_agent_state=$?
+
+    if [ -z "$SSH_AUTH_SOCK" ] || [ "$ssh_agent_state" = 2 ]; then
+        (umask 077 && ssh-agent >|"$ssh_agent_env")
         # shellcheck disable=SC1090
-        load_env_inner
+        . "$ssh_agent_env" >/dev/null
+        ssh-add >/dev/null 2>&1
+    elif [ "$ssh_agent_state" = 1 ]; then
+        ssh-add >/dev/null 2>&1
     fi
-}
 
-function agent_start() {
-    (
-        umask 077
-        ssh-agent >| "$envfile"
-    )
-    load_env_inner
-}
-
-load_env
-
-# agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2=agent not running
-agent_run_state=$(ssh-add -l >| /dev/null 2>&1; echo $?)
-
-if [ ! "$SSH_AUTH_SOCK" ] || [ "$agent_run_state" = 2 ]; then
-    agent_start
-    ssh-add >| /dev/null 2>&1
-elif [ "$SSH_AUTH_SOCK" ] && [ "$agent_run_state" = 1 ]; then
-    ssh-add >| /dev/null 2>&1
+    unset ssh_agent_env ssh_agent_state
 fi
-
-unset env
