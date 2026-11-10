@@ -1,12 +1,12 @@
 # shellcheck shell=bash
 
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    if [ -r ~/.dircolors ]; then
-        eval "$(dircolors -b ~/.dircolors)"
-    else
-        eval "$(dircolors -b)"
-    fi
+if [ -r ~/.dircolors ]; then
+    cached_eval dircolors -b ~/.dircolors
+else
+    cached_eval dircolors -b
+fi
+if [ -n "$LS_COLORS" ]; then
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
