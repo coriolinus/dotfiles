@@ -11,5 +11,9 @@ shopt -s checkwinsize
 # match all files and zero or more directories and subdirectories.
 shopt -s globstar
 
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# make less more friendly for non-text input files, see lesspipe(1).
+# This is the output of `SHELL=/bin/sh lesspipe`, without the fork.
+if [ -x /usr/bin/lesspipe ]; then
+    export LESSOPEN="| /usr/bin/lesspipe %s"
+    export LESSCLOSE="/usr/bin/lesspipe %s %s"
+fi

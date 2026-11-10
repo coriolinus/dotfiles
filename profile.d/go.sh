@@ -1,10 +1,8 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
 # Go language
-if which go >/dev/null 2>&1; then
-    export GOPATH=$HOME/go
-    export GOROOT=/usr/local/opt/go/libexec/
-    export GOBIN=$GOPATH/bin
-    export PATH=$PATH:$GOBIN
-    export PATH=$PATH:$GOROOT/bin
-fi
+#
+# Modern Go doesn't need GOROOT or GOPATH set; we just need the toolchain
+# (if installed from the official tarball) and installed binaries on PATH.
+path_prepend /usr/local/go/bin
+path_prepend "${GOBIN:-${GOPATH:-$HOME/go}/bin}"

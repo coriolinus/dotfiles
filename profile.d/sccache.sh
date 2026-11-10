@@ -1,4 +1,4 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
 # SCCACHE works fine on its own just by creating the directory,
 # but we can put it on a ramdisk to avoid some pressure on the
@@ -13,6 +13,6 @@
 # rustc-wrapper = "/home/coriolinus/.cargo/bin/sccache"
 
 if which sccache >/dev/null 2>&1 && [ -d /tmp/sccache ]; then
-    export SCCACHE_DIR=/tmp/scccache
+    export SCCACHE_DIR=/tmp/sccache
     export SCCACHE_CACHE_SIZE="8G"
 fi

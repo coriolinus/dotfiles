@@ -1,12 +1,12 @@
 # shellcheck shell=bash
 
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    if [ -r dircolors ]; then
-        eval "$(dircolors -b ~/.dircolors)"
-    else
-        eval "$(dircolors -b)"
-    fi
+if [ -r ~/.dircolors ]; then
+    cached_eval dircolors -b ~/.dircolors
+else
+    cached_eval dircolors -b
+fi
+if [ -n "$LS_COLORS" ]; then
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
@@ -34,7 +34,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 if [ -f ~/.bash_aliases ]; then
-    # shellcheck source=../../.bash_aliases
+    # shellcheck source=/dev/null
     . ~/.bash_aliases
 fi
 

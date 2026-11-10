@@ -2,7 +2,7 @@
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
+    read -r debian_chroot </etc/debian_chroot
 fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
@@ -27,21 +27,12 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    # Colors
-    INVERT=`tput smso`
-    OFFINVERT=`tput rmso`
-    RED="\[$(tput setaf 1)\]"
-    GREEN="\[$(tput setaf 2)\]"
-    YELLOW="\[$(tput setaf 3)\]"
-    BLUE="\[$(tput setaf 4)\]"
-    PURPLE="\[$(tput setaf 5)\]"
-    CYAN="\[$(tput setaf 6)\]"
-    WHITE="\[$(tput setaf 7)\]"
-    RESET="\[$(tput sgr0)\]"
-
-    PS1="${BLUE}${INVERT}\u@\h${RESET} ${GREEN}\w${RESET}\n\$ "
+    # Literal ANSI escapes rather than `tput`, which cost a fork per color.
+    # Everything non-printing must be wrapped in \[ \] so bash can compute
+    # the prompt width correctly.
+    PS1='\[\e[34;7m\]\u@\h\[\e[0m\] \[\e[32m\]\w\[\e[0m\]\n\$ '
 else
-    PS1="\u@\h \w\n\$ "
+    PS1='\u@\h \w\n\$ '
 fi
 unset color_prompt force_color_prompt
 
@@ -53,3 +44,7 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
+# PS0 is printed after a command is read and before it runs (but not for
+# empty lines): print a timestamp, formatted like `date`'s default output.
+PS0='\D{%a %b %e %T %Z %Y}\n'

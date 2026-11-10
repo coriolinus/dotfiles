@@ -1,19 +1,13 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
-# This is only necessary on newer OSX, which previously had a system python2
-# installation, and recently does not.
+# pyenv: python version manager <https://github.com/pyenv/pyenv>
 #
-# For how to setup / fix the issue, see
-# https://stackoverflow.com/questions/71591971/how-can-i-fix-the-zsh-command-not-found-python-error-macos-monterey-12-3
-
-if [ -e "$HOME"/dotfiles/ensurepath.sh ] && [ -x "$HOME"/.pyenv/bin/pyenv ]; then
-    # shellcheck source=ensurepath.sh
-    source "$HOME"/dotfiles/ensurepath.sh
-    ensurepath "$HOME"/.pyenv/bin
-
+# This is what `pyenv init --path` does, without its two subprocesses and
+# its `pyenv rehash` (together ~60ms per login). pyenv rehashes the shims
+# itself after `pyenv install` and `pip install`; if a new executable is
+# ever missing, run `pyenv rehash` by hand.
+if [ -x "$HOME/.pyenv/bin/pyenv" ]; then
     export PYENV_ROOT="$HOME/.pyenv"
-fi
-
-if command -v pyenv >/dev/null; then
-    eval "$(pyenv init --path)"
+    path_prepend "$PYENV_ROOT/bin"
+    path_prepend "$PYENV_ROOT/shims"
 fi
