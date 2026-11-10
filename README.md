@@ -16,6 +16,25 @@ small machine-local files which source `profile.sh`, `bash_profile.sh` and
 machine-specific setup in those local files; installers which append to
 them will no longer modify the repo.
 
+### Install zoxide
+
+`z` (jump to a frequently-used directory) and `zi` (interactive picker)
+come from [zoxide](https://github.com/ajeetdsouza/zoxide), which is not
+installed by default. Install it on every new machine:
+
+```sh
+sudo apt install zoxide     # Debian/Ubuntu
+brew install zoxide         # macOS
+cargo install zoxide        # anywhere with a rust toolchain; newest version
+```
+
+New shells pick it up automatically (`rc.d/zoxide.sh`). To bring over
+history from the old `z.sh`, or from another machine's `~/.z`:
+
+```sh
+zoxide import --from=z ~/.z
+```
+
 ## Layout
 
 - `profile.sh` + `profile.d/*.sh`: environment (PATH etc.). Must be POSIX
