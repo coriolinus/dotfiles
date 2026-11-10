@@ -5,10 +5,10 @@
 # Linux desktops usually start non-login shells, which read ~/.bashrc and
 # inherit the environment from the session.
 
-# shellcheck source=.profile
+# shellcheck source=profile.sh
 [ -f ~/.profile ] && . ~/.profile
 
 if [[ $- == *i* ]] && [ -f ~/.bashrc ]; then
-    # shellcheck source=.bashrc
+    # shellcheck source=bashrc.sh
     . ~/.bashrc
 fi
