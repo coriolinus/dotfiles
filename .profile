@@ -1,6 +1,8 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
-# .profile is for things like environment variables, like PATH etc
+# .profile is for environment variables, like PATH. Login shells read it,
+# and so do graphical sessions on many Linux desktops, via /bin/sh: so it
+# and everything in profile.d must be POSIX sh.
 
 # silence a bunch of OSX warnings about locale: we don't actually want
 # en_DE, and it's not supported anyway. It goes here instead of in
@@ -26,9 +28,9 @@ path_append() {
 }
 
 # run profile setup scripts
-for script in ~/dotfiles/profile.d/*.sh; do
+for script in "$HOME"/dotfiles/profile.d/*.sh; do
     # shellcheck disable=SC1090
-    source "$script"
+    . "$script"
 done
 unset script
 
@@ -36,10 +38,3 @@ unset script
 path_prepend "$HOME/.local/bin"
 path_prepend "$HOME/bin"
 export PATH
-
-# when running in WSL or osx, we want to also execute .bashrc here; otherwise
-# it doesn't handle .bashrc appropriately
-if [ -f /proc/version ] && grep -iq Microsoft /proc/version || [[ "$OSTYPE" =~ darwin ]]; then
-    # shellcheck source=.bashrc
-    source ~/dotfiles/.bashrc
-fi
