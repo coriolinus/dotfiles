@@ -1,4 +1,4 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
 # bat config
 # set light theme

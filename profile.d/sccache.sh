@@ -1,4 +1,4 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
 # SCCACHE works fine on its own just by creating the directory,
 # but we can put it on a ramdisk to avoid some pressure on the

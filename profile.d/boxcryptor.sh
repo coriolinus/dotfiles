@@ -1,4 +1,4 @@
-# shellcheck shell=bash
+# shellcheck shell=sh
 
 # This takes a bit of setup, but if everything is in place, automatically
 # connects securely to Boxcryptor.
@@ -9,8 +9,8 @@
 # Then, at the prompt, do _not_ enter the sudo password; enter the password
 # for the personal boxcryptor.
 
-if  [[ -d "$HOME"/Dropbox/BoxCryptor ]] &&
-    [[ -d "$HOME"/Boxcryptor ]] &&
+if  [ -d "$HOME"/Dropbox/BoxCryptor ] &&
+    [ -d "$HOME"/Boxcryptor ] &&
     # test that the dest dir is empty / unmounted
     [ -z "$(ls -A "$HOME"/Boxcryptor)" ] &&
     command -v encfs >/dev/null &&
