@@ -44,3 +44,7 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
+# PS0 is printed after a command is read and before it runs (but not for
+# empty lines): print a timestamp, formatted like `date`'s default output.
+PS0='\D{%a %b %e %T %Z %Y}\n'
