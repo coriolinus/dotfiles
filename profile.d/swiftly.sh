@@ -8,5 +8,5 @@ if [ -d "$HOME/.local/share/swiftly" ]; then
     export SWIFTLY_HOME_DIR="$HOME/.local/share/swiftly"
     export SWIFTLY_BIN_DIR="$SWIFTLY_HOME_DIR/bin"
     export SWIFTLY_TOOLCHAINS_DIR="$SWIFTLY_HOME_DIR/toolchains"
-    PATH="$SWIFTLY_BIN_DIR:$PATH"
+    path_prepend "$SWIFTLY_BIN_DIR"
 fi

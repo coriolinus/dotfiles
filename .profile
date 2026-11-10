@@ -7,18 +7,35 @@
 # profile.d to ensure that it's set before the warnings are generated.
 export LC_ALL=en_US.UTF-8
 
-if [ -e "$HOME"/dotfiles/ensurepath.sh ]; then
-    # shellcheck source=ensurepath.sh
-    source "$HOME"/dotfiles/ensurepath.sh
-    ensurepath "$HOME"/bin
-    ensurepath "$HOME"/.local/bin
-fi
+# path_prepend DIR: put DIR at the front of PATH if it exists and isn't there yet
+path_prepend() {
+    [ -d "$1" ] || return 0
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH="$1:$PATH" ;;
+    esac
+}
+
+# path_append DIR: put DIR at the end of PATH if it exists and isn't there yet
+path_append() {
+    [ -d "$1" ] || return 0
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH="$PATH:$1" ;;
+    esac
+}
 
 # run profile setup scripts
 for script in ~/dotfiles/profile.d/*.sh; do
     # shellcheck disable=SC1090
     source "$script"
 done
+unset script
+
+# personal bin dirs take precedence over everything else
+path_prepend "$HOME/.local/bin"
+path_prepend "$HOME/bin"
+export PATH
 
 # when running in WSL or osx, we want to also execute .bashrc here; otherwise
 # it doesn't handle .bashrc appropriately
